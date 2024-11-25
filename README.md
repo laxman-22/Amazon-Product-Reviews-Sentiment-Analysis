@@ -1,2 +1,27 @@
-# Amazon-Product-Reviews-Sentiment-Analysis
-This repository contains the code that was created to scrape Amazon products and curate a dataset that is open source and available on Kaggle.
+# Amazon Reviews Sentiment Analysis Dataset
+
+
+## Description
+This repository contains the code that was used to scrape Amazon for their product reviews in the Electronics department.
+
+The dataset is available on [Kaggle]() and this repository can be used to extend the functionality of this dataset. Unit tests are also present in the ```unittests.py``` file.
+
+In order to run this code successfully, you must have the dataset with the name ```ProductReviews.csv``` and create another empty file named ```links.csv``` in order for the scraper to keep track of the links traversed so the scraper can continue where it left off in case of any interruptions.
+
+## Executive Summary
+
+### Motivation
+
+### Applications
+
+## Power Analysis
+
+
+## Exploratory Data Analysis
+
+
+## Ethics Statement
+
+
+## License
+
