@@ -113,6 +113,15 @@ def log_data(product_id, name, review_id, review_type, product_rating, review_ra
 
 def setup(user_agent):
     '''
+    This function instantiates a simulated User Agent so that the browser can recognize
+    the scraper as a user opening up a browser.
+
+    Parameters:
+    user_agent (UserAgent): Instance of the UserAgent class which is used to simulate user behaviour
+
+    Returns:
+    driver (webdriver): The Selenium webdriver that is actually used to traverse websites
+    
     '''
     options = Options()
     options.add_argument(f"Mozilla/5.0 (Windows NT 10.0; Win64; x64; rv:120.0) Gecko/20100101 Firefox/120.0")
@@ -120,6 +129,18 @@ def setup(user_agent):
     return driver
 
 def get_links(driver, url):
+    '''
+    This function retrieves the links on the current page of Amazon's electronics department and stores them in the links.csv
+    file in order for the scraper to pick up where it left off in the event of an interruption
+
+    Parameters:
+    driver (webdriver): Instance of the Selenium webdriver that is used to traverse websites
+    url (str): The current URL that shows a single page containing a list of products so that the links of each product on the page can be extracted
+
+    Returns:
+    links (list): The list of links that were added to the links.csv file and now the list can be used to traverse through each element in the list.
+
+    '''
     
     if (os.path.exists('links.csv')) == False:
         driver.get(url)
@@ -138,11 +159,26 @@ def get_links(driver, url):
     return links
 
 def remove_link(link):
+    '''
+    Once a link has been scraped, remove the link from the file.
+
+    Parameters:
+    link (str): Link to be removed from the links.csv file
+
+    '''
     df = pd.read_csv('links.csv')
     df.drop(df[df['link'] == link].index, inplace=True, axis=0)
     df.to_csv('links.csv', index=False)
 
 def click_dropdown(driver, ID):
+    '''
+    This function performs the click for selecting the "Positive" and "Critical" review types on each product page
+
+    Parameters:
+    driver (webdriver): Instance of the Selenium webdriver that is used to traverse websites
+    ID (str): The HTML element ID to be selected
+
+    '''
     count = 5
     while count >= 0:
         try:
@@ -164,34 +200,53 @@ def click_dropdown(driver, ID):
     return driver
 
 def scrape(links, driver):
+    '''
+    This is the primary function that contains all the logic for navigating each page in the scraper
+
+    Parameters:
+    links (list): The array of all the links that were on the current page in the Amazon department
+    driver (webdriver): Instance of the Selenium webdriver that is used to traverse websites    
+    '''
 
     for link in links:
         res = link.split('/')
         driver.get(link)
+
+        # Check if the current link has been scraped
         scraped = check_url(driver.current_url)
         
+        # Random waiting periods and scrolling on the page to introduce basic randomness in scraper behavior 
+        # (Note: Amazon has been able to figure out the pattern in this code so more randomness would have to be added)
         time.sleep(random.randint(2,6))
-        
         driver.execute_script(f"window.scrollBy(0, {random.randint(5, 500)});")
         time.sleep(random.randint(1, 10))
         driver.execute_script(f"window.scrollBy(0, {random.randint(200, 1100)});")
         time.sleep(random.randint(5, 8))
 
+        # Continue if this link was visited
         if scraped:
             print('continuing...')
             continue
+        # More random sleep
         time.sleep(random.randint(1,10))
+
+        # Find the "See More Reviews" HTML element to get to all the reviews
         if BeautifulSoup(str(driver.page_source), 'html.parser').find('a', string='See more reviews') == None:
             continue
         review_link = BeautifulSoup(str(driver.page_source), 'html.parser').find('a', string='See more reviews')['href']
-
+        
+        # Go to the reviews page to see all reviews for this product
         driver.get('https://www.amazon.com' + review_link)
+
+        # Check if the product has been scraped
         scraped = check_url(driver.current_url)
         if scraped:
             print('continuing...')
             continue
+        # Click the dropdown to filter reviews by Positive sentiment
         driver = click_dropdown(driver, 'star-count-dropdown_7')
 
+        # Retrieve all necessary review parameters in order to log to the file for Positive reviews
         soup = BeautifulSoup(str(driver.page_source), 'html.parser') 
         for item in res:
             if item == 'dp':
@@ -201,11 +256,10 @@ def scrape(links, driver):
             else:     
                 product_id = 'Unknown'
                 break
-        
+
         name = soup.find('a', {'data-hook': 'product-link'}).text
         product_rating = soup.find(attrs={'data-hook': 'rating-out-of-text'}).text.split(" ")[0]
         rating_count = soup.find(attrs={'data-hook': 'total-review-count'}).find_next('span').text.split(" ")[0]
-        
         review_type = soup.find('div', {'class': 'star-rating-select'}).find_next('span').find_next('span').find_next('span').find_next('span').find_next('span').text.split(" ")[0]
         reviews = soup.find('div', {'id': 'cm_cr-review_list'}).find_all(attrs={'data-hook': 'review'})
 
@@ -227,8 +281,10 @@ def scrape(links, driver):
                     url=driver.current_url)
         time.sleep(random.randint(1,10))
 
+        # Click the dropdown to filter reviews by Critical sentiment
         driver = click_dropdown(driver, 'star-count-dropdown_6')
 
+        # Retrieve all necessary review parameters in order to log to the file for Critical reviews
         soup = BeautifulSoup(str(driver.page_source), 'html.parser') 
         
         review_type = soup.find('div', {'class': 'star-rating-select'}).find_next('span').find_next('span').find_next('span').find_next('span').find_next('span').text.split(" ")[0]
@@ -254,6 +310,11 @@ def scrape(links, driver):
 
 
 def main():
+    '''
+    This is the main function that performs necessary initializations and sets up a count for the pages to traverse through.
+    Note: The count value has to be manually updated as a page is scraped (i.e. if count is 1 the first page will be scraped, but once
+    it has been scraped count should be updated to 2 so that the links of the second page are retrieved instead of starting from the first page)
+    '''
     count = 7
     ua = UserAgent()
     while count < 30:
