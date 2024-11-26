@@ -72,6 +72,28 @@ All of the data collected was from publicly available sources and in complaince 
 
 ## Instructions
 
+The first step required to run this code successfully is to download the dataset which can be found here on [Kaggle](https://www.kaggle.com/datasets/laxman22/amazon-product-reviews-for-sentiment-analysis)
+
+Then, clone this repository into your machine
+```bash
+git clone https://github.com/laxman-22/Amazon-Product-Reviews-Sentiment-Analysis.git
+```
+Next, create and start a virtual environment
+```bash
+python -m venv venv
+source venv/bin/activate
+```
+Install all the requirements necessary
+```bash
+pip install -r requirements.txt
+```
+Now unit tests can be run from the ```unittests.py``` file and the scraper itself can be run from ```webscraper.py```. Finally, the exploratory data analysis can be ran from the ```exploratory_data_analysis.py``` file.
 
 ## License
+Dataset License
 
+[CC0: Public Domain](https://creativecommons.org/publicdomain/zero/1.0/)
+
+Github Repository License
+
+[MIT License](LICENSE)
