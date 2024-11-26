@@ -74,9 +74,10 @@ All of the data collected was from publicly available sources and in complaince 
 
 The first step required to run this code successfully is to download the dataset which can be found here on [Kaggle](https://www.kaggle.com/datasets/laxman22/amazon-product-reviews-for-sentiment-analysis)
 
-Then, clone this repository into your machine
+Then, clone this repository into your machine (after completing this step, move the ```ProductReviews.csv``` file into the root directory of this repo)
 ```bash
 git clone https://github.com/laxman-22/Amazon-Product-Reviews-Sentiment-Analysis.git
+cd Amazon-Product-Reviews-Sentiment-Analysis
 ```
 Next, create and start a virtual environment
 ```bash
