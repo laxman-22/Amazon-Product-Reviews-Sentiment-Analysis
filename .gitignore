@@ -1,0 +1,5 @@
+venv/
+ProductReviews.csv
+links.csv
+generated_plots/
+__pycache__/

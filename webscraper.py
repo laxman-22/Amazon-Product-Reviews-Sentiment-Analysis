@@ -315,8 +315,10 @@ def main():
     Note: The count value has to be manually updated as a page is scraped (i.e. if count is 1 the first page will be scraped, but once
     it has been scraped count should be updated to 2 so that the links of the second page are retrieved instead of starting from the first page)
     '''
-    count = 7
+    # count is the starting page number
+    count = 1
     ua = UserAgent()
+    # Scrape each link collected on the first 30 pages or so
     while count < 30:
         driver = setup(ua)
         url = f'https://www.amazon.com/s?k=electronics&i=electronics&page={count}'
